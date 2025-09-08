@@ -1,13 +1,13 @@
 {
-  "FileVersion": 3,
-  "EngineAssociation": 5.54,
-  "Category": "",
-  "Description": "",
-  "Modules": [
-    {
-      "Name": "PBFluidSimCore",
-      "Type": "Runtime",
-      "LoadingPhase": "Default"
-    }
-  ]
+	"FileVersion": 3,
+	"EngineAssociation": "5.5",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "PBFluidSimCore",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
 }
