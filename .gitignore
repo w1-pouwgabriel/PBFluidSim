@@ -65,3 +65,6 @@ ProjectFiles/
 !.vsconfig
 !*.bat
 !tree.txt
+
+# Ignore 
+compile_commands.json
