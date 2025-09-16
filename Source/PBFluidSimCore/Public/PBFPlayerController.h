@@ -15,12 +15,18 @@ public:
 protected:
     virtual void SetupInputComponent() override;
 
-    /** Example: Move forward/backward */
+    /** Move forward/backward */
     void MoveForward(float Value);
 
-    /** Example: Move right/left */
+    /** Move right/left */
     void MoveRight(float Value);
+
+    /** Toggle focus/capture state */
+    void FocusViewport();
+    void UnfocusViewport();
 
     /** Example: Jump */
     void JumpAction();
+    
+    bool bIsFocused;
 };
