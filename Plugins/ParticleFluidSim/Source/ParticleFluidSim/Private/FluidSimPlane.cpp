@@ -28,7 +28,7 @@ AFluidSimPlane::AFluidSimPlane()
 
 void AFluidSimPlane::UpdateFluidTexture(UTexture2D* NewTexture)
 {
-    if (DynamicMaterial && NewTexture)
+    if (DynamicMaterial && NewTexture) // Check if 
     {
         DynamicMaterial->SetTextureParameterValue(FName("Texture"), NewTexture);
     }
