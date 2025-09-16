@@ -24,9 +24,17 @@ protected:
     /** Toggle focus/capture state */
     void FocusViewport();
     void UnfocusViewport();
+    void HandleLeftClick();
+
+    /** Look functions (mouse input) */
+    void LookUp(float Value);
+    void Turn(float Value);
 
     /** Example: Jump */
     void JumpAction();
-    
+
+    /** Fire ray forward */
+    void FireRay();
+
     bool bIsFocused;
 };

@@ -13,7 +13,6 @@ public:
 
     static inline bool IsAvailable()
     {
-        
         return FModuleManager::Get().IsModuleLoaded("PBFluidSimCore");
     }
 

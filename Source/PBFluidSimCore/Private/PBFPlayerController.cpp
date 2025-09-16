@@ -4,7 +4,7 @@
 
 APBFPlayerController::APBFPlayerController()
 {
-    bShowMouseCursor = true;   // optional, useful if you want cursor visible
+    bIsFocused = false;
 }
 
 void APBFPlayerController::SetupInputComponent()
@@ -17,9 +17,15 @@ void APBFPlayerController::SetupInputComponent()
     InputComponent->BindAxis("MoveForward", this, &APBFPlayerController::MoveForward);
     InputComponent->BindAxis("MoveRight", this, &APBFPlayerController::MoveRight);
 
+    InputComponent->BindAction("LeftClick", IE_Pressed, this, &APBFPlayerController::HandleLeftClick);
+
     // Focus/unfocus
     InputComponent->BindAction("FocusViewport", IE_Pressed, this, &APBFPlayerController::FocusViewport);
     InputComponent->BindAction("UnfocusViewport", IE_Pressed, this, &APBFPlayerController::UnfocusViewport);
+
+    // Mouse look (axes from mouse movement)
+    InputComponent->BindAxis("Turn", this, &APBFPlayerController::Turn);
+    InputComponent->BindAxis("LookUp", this, &APBFPlayerController::LookUp);
 
     // Bind actions (pressed/released)
     InputComponent->BindAction("Jump", IE_Pressed, this, &APBFPlayerController::JumpAction);
@@ -59,10 +65,67 @@ void APBFPlayerController::UnfocusViewport()
     UE_LOG(LogTemp, Log, TEXT("Viewport unfocused"));
 }
 
+void APBFPlayerController::HandleLeftClick()
+{
+    if (!bIsFocused)
+    {
+        // First click → focus viewport
+        SetInputMode(FInputModeGameOnly());
+
+        UE_LOG(LogTemp, Log, TEXT("Viewport focused"));
+    }
+    else
+    {
+        // Already focused → fire ray
+        FireRay();
+    }
+}
+
+void APBFPlayerController::Turn(float Value)
+{
+    if (bIsFocused && Value != 0.0f)
+    {
+        AddYawInput(Value);
+    }
+}
+
+void APBFPlayerController::LookUp(float Value)
+{
+    if (bIsFocused && Value != 0.0f)
+    {
+        AddPitchInput(Value);
+    }
+}
+
 void APBFPlayerController::JumpAction()
 {
     if (ACharacter* ControlledChar = Cast<ACharacter>(GetPawn()))
     {
         ControlledChar->Jump();
+    }
+}
+
+void APBFPlayerController::FireRay()
+{
+    if (!bIsFocused) return;
+
+    FVector Location;
+    FRotator Rotation;
+    GetPlayerViewPoint(Location, Rotation);
+
+    FVector End = Location + (Rotation.Vector() * 10000.0f);
+
+    FHitResult Hit;
+    FCollisionQueryParams Params;
+    Params.AddIgnoredActor(GetPawn());
+
+    if (GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECC_Visibility, Params))
+    {
+        UE_LOG(LogTemp, Log, TEXT("Hit: %s"), *Hit.GetActor()->GetName());
+        DrawDebugLine(GetWorld(), Location, Hit.Location, FColor::Green, false, 1.f, 0, 1.f);
+    }
+    else
+    {
+        DrawDebugLine(GetWorld(), Location, End, FColor::Red, false, 1.f, 0, 1.f);
     }
 }
