@@ -26,6 +26,8 @@ public:
         SetActorLocation(NewLocation);
     }
 
+    void HandleParticleCollisions();
+
     // Size of the simulation volume (half extents of the box)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fluid Sim")
     FVector VolumeHalfExtents;

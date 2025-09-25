@@ -29,7 +29,6 @@ void AFluidSimVolume::BeginPlay()
                 FMath::FRandRange(-VolumeHalfExtents.Z, VolumeHalfExtents.Z)
             );
 
-
         FVector RandVel = FVector(FMath::FRandRange(-50.f, 50.f),
                                   FMath::FRandRange(-50.f, 50.f),
                                   FMath::FRandRange(-50.f, 50.f));
@@ -39,6 +38,41 @@ void AFluidSimVolume::BeginPlay()
         {
             ParcelActor->InitParcel(RandPos, RandVel);
             Parcels.Add(ParcelActor);
+        }
+    }
+}
+
+void AFluidSimVolume::HandleParticleCollisions()
+{
+    const float ParticleRadius = 10.f; // treat each parcel as a sphere
+    const float Stiffness = 200.f;     // how strongly they push each other
+
+    for (int32 i = 0; i < Parcels.Num(); i++)
+    {
+        for (int32 j = i + 1; j < Parcels.Num(); j++)
+        {
+            AFluidParcelActor* A = Parcels[i];
+            AFluidParcelActor* B = Parcels[j];
+            if (!A || !B || !A->Parcel || !B->Parcel) continue;
+
+            FVector Dir = B->Parcel->Position - A->Parcel->Position;
+            float Dist = Dir.Size();
+
+            if (Dist > KINDA_SMALL_NUMBER && Dist < 2 * ParticleRadius)
+            {
+                // Normalize
+                FVector Normal = Dir / Dist;
+
+                // Overlap amount
+                float Penetration = 2 * ParticleRadius - Dist;
+
+                // Apply simple spring force (repulsion)
+                FVector Force = Normal * (Penetration * Stiffness);
+
+                // Push particles apart
+                A->Parcel->Velocity -= Force / A->Parcel->Mass;
+                B->Parcel->Velocity += Force / B->Parcel->Mass;
+            }
         }
     }
 }
@@ -78,5 +112,16 @@ void AFluidSimVolume::Tick(float DeltaTime)
 
         // Apply updated position
         Parcel->SetActorLocation(Pos);
+    }
+
+    HandleParticleCollisions();
+
+    // Apply new positions
+    for (AFluidParcelActor* ParcelActor : Parcels)
+    {
+        if (ParcelActor && ParcelActor->Parcel)
+        {
+            ParcelActor->SetActorLocation(ParcelActor->Parcel->Position);
+        }
     }
 }
