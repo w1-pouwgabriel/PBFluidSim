@@ -20,13 +20,21 @@ private:
 public:
     virtual void Tick(float DeltaTime) override;
 
-    UFUNCTION(BlueprintCallable, Category="FluidSim")
-    void SetVolumeLocation(FVector NewLocation)
-    {
-        SetActorLocation(NewLocation);
-    }
+    // SPH constants
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
+    float RestDensity = 1000.f; // kg/m^3
 
-    void HandleParticleCollisions();
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
+    float GasConstant = 2000.f; // stiffness constant
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
+    float Viscosity = 0.1f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
+    float SmoothingRadius = 50.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
+    float Gravity = -980.f; // Unreal units (cm/s²)
 
     // Size of the simulation volume (half extents of the box)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fluid Sim")

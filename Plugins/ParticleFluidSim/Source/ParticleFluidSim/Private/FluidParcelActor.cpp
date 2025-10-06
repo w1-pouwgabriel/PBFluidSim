@@ -33,7 +33,6 @@ void AFluidParcelActor::Tick(float DeltaTime)
 
     if (Parcel)
     {
-        Parcel->Update(DeltaTime);
         SetActorLocation(Parcel->Position); // move the sphere
     }
 }

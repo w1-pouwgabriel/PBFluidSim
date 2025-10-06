@@ -4,17 +4,16 @@
 #include "Engine/World.h"
 
 AFluidSimVolume::AFluidSimVolume()
+    : VolumeHalfExtents(FVector(250.f, 250.f, 250.f)), NumParcels(50), bDrawDebugBox(true)
 {
     PrimaryActorTick.bCanEverTick = true;
-    VolumeHalfExtents = FVector(250.f, 250.f, 250.f);
-    NumParcels = 50;
-    bDrawDebugBox = true;
 }
 
 void AFluidSimVolume::BeginPlay()
 {
     Super::BeginPlay();
 
+    // Add parcels at random positions
     for (int32 i = 0; i < NumParcels; i++)
     {
         FVector VolumeOrigin = GetActorLocation();
@@ -38,41 +37,6 @@ void AFluidSimVolume::BeginPlay()
         {
             ParcelActor->InitParcel(RandPos, RandVel);
             Parcels.Add(ParcelActor);
-        }
-    }
-}
-
-void AFluidSimVolume::HandleParticleCollisions()
-{
-    const float ParticleRadius = 10.f; // treat each parcel as a sphere
-    const float Stiffness = 200.f;     // how strongly they push each other
-
-    for (int32 i = 0; i < Parcels.Num(); i++)
-    {
-        for (int32 j = i + 1; j < Parcels.Num(); j++)
-        {
-            AFluidParcelActor* A = Parcels[i];
-            AFluidParcelActor* B = Parcels[j];
-            if (!A || !B || !A->Parcel || !B->Parcel) continue;
-
-            FVector Dir = B->Parcel->Position - A->Parcel->Position;
-            float Dist = Dir.Size();
-
-            if (Dist > KINDA_SMALL_NUMBER && Dist < 2 * ParticleRadius)
-            {
-                // Normalize
-                FVector Normal = Dir / Dist;
-
-                // Overlap amount
-                float Penetration = 2 * ParticleRadius - Dist;
-
-                // Apply simple spring force (repulsion)
-                FVector Force = Normal * (Penetration * Stiffness);
-
-                // Push particles apart
-                A->Parcel->Velocity -= Force / A->Parcel->Mass;
-                B->Parcel->Velocity += Force / B->Parcel->Mass;
-            }
         }
     }
 }
@@ -114,14 +78,15 @@ void AFluidSimVolume::Tick(float DeltaTime)
         Parcel->SetActorLocation(Pos);
     }
 
-    HandleParticleCollisions();
-
-    // Apply new positions
-    for (AFluidParcelActor* ParcelActor : Parcels)
+    for (AFluidParcelActor* PiActor : Parcels)
     {
-        if (ParcelActor && ParcelActor->Parcel)
-        {
-            ParcelActor->SetActorLocation(ParcelActor->Parcel->Position);
-        }
+        UFluidParcel* Pi = PiActor->Parcel;
+
+        FVector GravityForce = FVector(0.f, 0.f, Gravity) * Pi->Density;
+
+        FVector Acceleration = (GravityForce) / Pi->Density;
+
+        Pi->Velocity += Acceleration * DeltaTime;
+        Pi->Position += Pi->Velocity * DeltaTime;
     }
 }

@@ -13,9 +13,6 @@ class PARTICLEFLUIDSIM_API UFluidParcel : public UObject
 public:
     UFluidParcel();
 
-    UFUNCTION(BlueprintCallable, Category = "Fluid Parcel")
-    void Update(float DeltaTime);
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fluid Parcel")
     FVector Position;
 
