@@ -1,9 +1,9 @@
 #include "FluidParcel.h"
 
-UFluidParcel::UFluidParcel()
+void UFluidParcel::ResetForces(float DeltaTime)
 {
-    Position = FVector::ZeroVector;
-    Velocity = FVector::ZeroVector;
-    Mass = 2.0f;
-    Density = 20.0f;
+    FVector Acceleration = Force / Density;
+    Velocity += Acceleration * DeltaTime;
+    Position += Velocity * DeltaTime;
+    Force = FVector::ZeroVector; // reset for next frame
 }

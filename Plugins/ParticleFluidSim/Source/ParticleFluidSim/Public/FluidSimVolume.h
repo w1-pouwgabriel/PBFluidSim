@@ -17,6 +17,8 @@ public:
 private:
     virtual void BeginPlay() override;
 
+    void VolumeCollisionCheck();
+
 public:
     virtual void Tick(float DeltaTime) override;
 
@@ -25,13 +27,13 @@ public:
     float RestDensity = 1000.f; // kg/m^3
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-    float GasConstant = 2000.f; // stiffness constant
+    float GasConstant = 2000.0f; // stiffness
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-    float Viscosity = 0.1f;
+    float Viscosity = 2.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-    float SmoothingRadius = 50.f;
+    UPROPERTY(VisibleAnywhere, Category = "SPH")
+    float SmoothingRadius = 0.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
     float Gravity = -980.f; // Unreal units (cm/s²)

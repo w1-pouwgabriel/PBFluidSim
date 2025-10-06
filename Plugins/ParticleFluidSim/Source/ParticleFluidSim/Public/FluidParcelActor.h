@@ -15,6 +15,10 @@ class PARTICLEFLUIDSIM_API AFluidParcelActor : public AActor
 public:
     AFluidParcelActor();
 
+protected:
+    virtual void BeginPlay() override;
+
+public:
     virtual void Tick(float DeltaTime) override;
 
     UPROPERTY(VisibleAnywhere)
@@ -23,5 +27,6 @@ public:
     UPROPERTY()
     TObjectPtr<UFluidParcel> Parcel;
 
-    void InitParcel(FVector StartPos, FVector StartVel);
+    UPROPERTY()
+    TObjectPtr<UMaterialInstanceDynamic> DynamicMat;
 };
