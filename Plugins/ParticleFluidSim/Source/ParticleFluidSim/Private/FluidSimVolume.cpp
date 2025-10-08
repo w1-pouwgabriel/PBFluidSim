@@ -164,7 +164,7 @@ void AFluidSimVolume::Tick(float DeltaTime)
     float h = ParticleSpacing * 1.1f; // smoothing radius
 
     // --- Simulation substepping for stability ---
-    const int32 Substeps = 32;
+    const int32 Substeps = 8;
     const float SubDeltaTime = DeltaTime / Substeps;
 
     for (int32 Step = 0; Step < Substeps; Step++)
