@@ -23,7 +23,7 @@ public:
     float Mass = 1.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fluid Parcel")
-    float Density = 1000.0f;
+    float Density = 1.0f;
 
     /** Pressure from equation of state */
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Fluid Parcel")
@@ -32,6 +32,9 @@ public:
     /** Accumulated force (from SPH pressure, viscosity, gravity, etc.) */
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Fluid Parcel")
     FVector Force;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Fluid Parcel")
+    bool bIsBoundary = false; // True if this is a ghost/boundary particle
 
     void ResetForces(float DeltaTime);
 };

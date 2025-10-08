@@ -17,20 +17,20 @@ public:
 private:
     virtual void BeginPlay() override;
 
-    void VolumeCollisionCheck();
+    void VolumeCollisionCheck(float DeltaTime);
 
 public:
     virtual void Tick(float DeltaTime) override;
 
     // SPH constants
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-    float RestDensity = 1000.f; // kg/m^3
+    float RestDensity = 100.0f; // kg/m^3
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-    float GasConstant = 2000.0f; // stiffness
+    float GasConstant = 200.0f; // stiffness
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-    float Viscosity = 2.0f;
+    float Viscosity = 0.5f;
 
     UPROPERTY(VisibleAnywhere, Category = "SPH")
     float SmoothingRadius = 0.f;
@@ -49,6 +49,7 @@ public:
     // Visual debug of the bounding box
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fluid Sim")
     bool bDrawDebugBox;
+
 
     // List of spawned parcels
     UPROPERTY()

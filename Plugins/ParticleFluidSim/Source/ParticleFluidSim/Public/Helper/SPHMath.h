@@ -19,7 +19,7 @@ namespace SPH
         float r = rVec.Size();
         if (r > 0 && r <= h)
         {
-            float coeff = -45.f / (PI * pow(h, 6)) * pow(h - r, 2);
+            float coeff = 45.f / (PI * pow(h, 6)) * pow(h - r, 2);
             return coeff * (rVec / r);
         }
         return FVector::ZeroVector;

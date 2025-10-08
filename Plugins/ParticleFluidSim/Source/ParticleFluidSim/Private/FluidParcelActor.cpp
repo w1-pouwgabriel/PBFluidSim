@@ -16,7 +16,7 @@ AFluidParcelActor::AFluidParcelActor()
     if (SphereMeshObj.Succeeded())
     {
         SphereMesh->SetStaticMesh(SphereMeshObj.Object);
-        SphereMesh->SetWorldScale3D(FVector(0.1f)); // smaller spheres
+        SphereMesh->SetWorldScale3D(FVector(0.2f)); // smaller spheres
     }
 
     // Load base material
@@ -51,7 +51,7 @@ void AFluidParcelActor::Tick(float DeltaTime)
     if (Parcel && DynamicMat)
     {
         float Speed = Parcel->Velocity.Size();
-        float MaxExpectedSpeed = 500.f; // adjust to your simulation
+        float MaxExpectedSpeed = 250.f;
 
         float NormalizedSpeed = FMath::Clamp(Speed / MaxExpectedSpeed, 0.f, 1.f);
         NormalizedSpeed = FMath::Pow(NormalizedSpeed, 0.5f); // exaggerate slow speeds
