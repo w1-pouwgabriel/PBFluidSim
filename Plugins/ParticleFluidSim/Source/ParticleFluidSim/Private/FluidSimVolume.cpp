@@ -66,7 +66,7 @@ void AFluidSimVolume::BeginPlay()
 
 void AFluidSimVolume::VolumeCollisionCheck()
 {
-    const float BounceDamping = 0.f;
+    const float BounceDamping = 1.f;
 
     for (AFluidParcelActor* Parcel : Parcels)
     {
@@ -79,12 +79,12 @@ void AFluidSimVolume::VolumeCollisionCheck()
         FVector MaxBounds = GetActorLocation() + VolumeHalfExtents;
 
         // X axis
-        if (Pos.X < MinBounds.X) { Pos.X = MinBounds.X; Vel.X = 0.f; }
-        else if (Pos.X > MaxBounds.X) { Pos.X = MaxBounds.X; Vel.X = 0.f; }
+        if (Pos.X < MinBounds.X) { Pos.X = MinBounds.X; Vel.X = Vel.X * -1.f; }
+        else if (Pos.X > MaxBounds.X) { Pos.X = MaxBounds.X; Vel.X = Vel.X * -1.f; }
 
         // Y axis
-        if (Pos.Y < MinBounds.Y) { Pos.Y = MinBounds.Y; Vel.Y = 0.f; }
-        else if (Pos.Y > MaxBounds.Y) { Pos.Y = MaxBounds.Y; Vel.Y = 0.f; }
+        if (Pos.Y < MinBounds.Y) { Pos.Y = MinBounds.Y; Vel.Y = Vel.Y * -1.f; }
+        else if (Pos.Y > MaxBounds.Y) { Pos.Y = MaxBounds.Y; Vel.Y = Vel.Y * -1.f; }
 
         // Z axis
         if (Pos.Z < MinBounds.Z) { Pos.Z = MinBounds.Z; Vel.Z = 0.f; }
@@ -108,7 +108,7 @@ void AFluidSimVolume::Tick(float DeltaTime)
     FVector VolumeSize = VolumeHalfExtents * 2.f;
     float VolumeTotal = VolumeSize.X * VolumeSize.Y * VolumeSize.Z;
     float ParticleSpacing = FMath::Pow(VolumeTotal / FMath::Max(NumParcels, 1), 1.f / 3.f);
-    float h = ParticleSpacing * 1.5f; // smoothing radius
+    float h = ParticleSpacing * 1.1f; // smoothing radius
 
     // Compute density and pressure
     for (AFluidParcelActor* PiActor : Parcels)
@@ -159,7 +159,7 @@ void AFluidSimVolume::Tick(float DeltaTime)
             if (r < h && r > 0.f)
             {
                 FVector gradW = SPH::SpikyGradient(Rij, h);
-                PressureForce += -Pj->Mass * (Pi->Pressure + Pj->Pressure) / (2.f * Pj->Density) * gradW;
+                PressureForce += Pj->Mass * (Pi->Pressure + Pj->Pressure) / (2.f * Pj->Density) * gradW;
 
                 float lap = SPH::ViscosityLaplacian(r, h);
                 ViscosityForce += Viscosity * Pj->Mass * (Pj->Velocity - Pi->Velocity) / Pj->Density * lap;
@@ -182,4 +182,3 @@ void AFluidSimVolume::Tick(float DeltaTime)
 
     VolumeCollisionCheck();
 }
-

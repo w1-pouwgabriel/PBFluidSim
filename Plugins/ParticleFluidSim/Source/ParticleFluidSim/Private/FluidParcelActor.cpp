@@ -20,7 +20,7 @@ AFluidParcelActor::AFluidParcelActor()
     }
 
     // Load base material
-    static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialObj(TEXT("/Game/Materials/M_FluidParcel.M_FluidParcel"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialObj(TEXT("/ParticleFluidSim/M_FluidParcel.M_FluidParcel"));
     if (MaterialObj.Succeeded())
     {
         SphereMesh->SetMaterial(0, MaterialObj.Object);
