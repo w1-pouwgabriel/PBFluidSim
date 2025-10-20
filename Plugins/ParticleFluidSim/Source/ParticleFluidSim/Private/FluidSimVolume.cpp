@@ -28,7 +28,7 @@ void AFluidSimVolume::BeginPlay()
     FVector StartPos = VolumeOrigin - VolumeHalfExtents + FVector(ParticleSpacing * 0.5f);
 
     int32 ParticleCount = 0;
-    float ParticleMass = 1.f;
+    float ParticleMass = 2.f;
 
     SmoothingRadius = ParticleSpacing * 1.8f; // larger h -> more neighbors
 
@@ -222,10 +222,10 @@ void AFluidSimVolume::Tick(float DeltaTime)
             {
                 FVector gradW = SPH::SpikyGradient(Rij, h);
 
-                // use Pi->Pressure and Pj->Pressure in the usual way
                 float PressureTerm = (Pi->Pressure / (Pi->Density * Pi->Density)) +
                     (Pj->Pressure / (Pj->Density * Pj->Density));
-                PressureForce -= Pj->Mass * PressureTerm * gradW;
+                PressureForce -= 0.5f * Pj->Mass * PressureTerm * gradW;
+
 
                 float lap = SPH::ViscosityLaplacian(r, h);
                 ViscosityForce += Viscosity * Pj->Mass * (Pj->Velocity - Pi->Velocity) / Pj->Density * lap;
@@ -236,7 +236,7 @@ void AFluidSimVolume::Tick(float DeltaTime)
         TotalForce = TotalForce.GetClampedToMaxSize(5000.f);
 
         FVector Acceleration = TotalForce / Pi->Mass;
-        Pi->Velocity += Acceleration * DeltaTime;
+        Pi->Velocity += Acceleration * DeltaTime; 
         Pi->Position += Pi->Velocity * DeltaTime;
     }
 
