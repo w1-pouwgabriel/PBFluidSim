@@ -35,6 +35,4 @@ public:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Fluid Parcel")
     bool bIsBoundary = false; // True if this is a ghost/boundary particle
-
-    void ResetForces(float DeltaTime);
 };

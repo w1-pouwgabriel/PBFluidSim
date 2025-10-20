@@ -60,7 +60,4 @@ void AFluidParcelActor::Tick(float DeltaTime)
 
         DynamicMat->SetVectorParameterValue(TEXT("PressureColor"), SpeedColor);
     }
-
-    Parcel->ResetForces(DeltaTime);
 }
-

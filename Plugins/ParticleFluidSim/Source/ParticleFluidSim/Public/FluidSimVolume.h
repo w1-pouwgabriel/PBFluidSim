@@ -24,13 +24,13 @@ public:
 
     // SPH constants
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-    float RestDensity = 100.0f; // kg/m^3
+    float RestDensity = 1.0f; // kg/m^3
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
     float GasConstant = 200.0f; // stiffness
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-    float Viscosity = 0.5f;
+    float Viscosity = 5.0f;
 
     UPROPERTY(VisibleAnywhere, Category = "SPH")
     float SmoothingRadius = 0.f;
