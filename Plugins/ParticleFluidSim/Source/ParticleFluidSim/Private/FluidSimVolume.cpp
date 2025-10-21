@@ -192,7 +192,6 @@ void AFluidSimVolume::Tick(float DeltaTime)
 
     // --------------------------------------------------------
     // 1. Compute density and pressure
-    // Reference: https://en.wikipedia.org/wiki/Smoothed-particle_hydrodynamics#Density_estimation
     // --------------------------------------------------------
     for (AFluidParcelActor* PiActor : Parcels)
     {
@@ -229,7 +228,6 @@ void AFluidSimVolume::Tick(float DeltaTime)
 
     // --------------------------------------------------------
     // 2. Compute forces (pressure, viscosity, gravity)
-    // Reference: https://en.wikipedia.org/wiki/Smoothed-particle_hydrodynamics#Equations_of_motion
     // --------------------------------------------------------
     for (AFluidParcelActor* PiActor : Parcels)
     {
@@ -250,7 +248,7 @@ void AFluidSimVolume::Tick(float DeltaTime)
             {
                 FVector gradW = SPH::SpikyGradient(Rij, h);
 
-                // Symmetric pressure term (Monaghan 1992)
+                // Symmetric pressure term
                 float PressureTerm = (Pi->Pressure / (Pi->Density * Pi->Density)) +
                                      (Pj->Pressure / (Pj->Density * Pj->Density));
                 PressureForce -= 0.5f * Pj->Mass * PressureTerm * gradW;
