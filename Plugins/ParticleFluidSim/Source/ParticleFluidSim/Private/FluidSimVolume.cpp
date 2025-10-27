@@ -98,7 +98,7 @@ void AFluidSimVolume::SoftCollisionCheck(float DeltaTime)
     const float WallBaseStrength = 60.f;
     const float MinWallDist = SmoothingRadius;
     const float MaxWallForce = 1000.f;
-    const float WallDamping = 0.4f;
+    const float WallDamping = 0.2f;
 
     FVector MinBounds = GetActorLocation() - VolumeHalfExtents * GetActorScale();
     FVector MaxBounds = GetActorLocation() + VolumeHalfExtents * GetActorScale();

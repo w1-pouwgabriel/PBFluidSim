@@ -20,10 +20,10 @@ public:
     FVector Velocity = FVector::ZeroVector;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fluid Parcel")
-    float Mass = 2.0f;
+    float Mass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fluid Parcel")
-    float Density = 1.0f;
+    float Density;
 
     /** Pressure from equation of state */
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Fluid Parcel")
