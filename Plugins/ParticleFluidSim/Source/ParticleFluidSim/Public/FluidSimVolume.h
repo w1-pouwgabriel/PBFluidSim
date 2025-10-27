@@ -6,6 +6,15 @@
 #include "FluidParcelActor.h"
 #include "FluidSimVolume.generated.h"
 
+
+UENUM(BlueprintType)
+enum class EBorderType : uint8
+{
+    Soft UMETA(DisplayName = "Soft"),
+    Hard UMETA(DisplayName = "Hard")
+};
+
+
 UCLASS()
 class PARTICLEFLUIDSIM_API AFluidSimVolume : public AActor
 {
@@ -14,20 +23,26 @@ class PARTICLEFLUIDSIM_API AFluidSimVolume : public AActor
 public:
     AFluidSimVolume();
 
-private:
+protected:
     virtual void BeginPlay() override;
 
-    void VolumeCollisionCheck(float DeltaTime);
+    void SoftCollisionCheck(float DeltaTime);
+    void HardCollisionCheck(float DeltaTime);
 
 public:
     virtual void Tick(float DeltaTime) override;
+
+
+    // Border vals
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fluid Sim")
+    EBorderType BorderType = EBorderType::Soft;
 
     // SPH constants
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
     float RestDensity = 1.0f; // kg/m^3
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-    float GasConstant = 200.0f; // stiffness
+    float GasConstant = 2000.0f; // stiffness
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
     float Viscosity = 5.0f;

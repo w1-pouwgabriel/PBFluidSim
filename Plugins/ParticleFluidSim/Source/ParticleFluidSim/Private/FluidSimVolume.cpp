@@ -88,13 +88,13 @@ inline float ComputeWallRepulsion(float Distance, float MinDist, float k)
 }
 
 // ------------------------------------------------------------
-// VolumeCollisionCheck: applies soft boundary constraints to particles
+// SoftCollisionCheck: applies soft boundary constraints to particles
 // ------------------------------------------------------------
-void AFluidSimVolume::VolumeCollisionCheck(float DeltaTime)
+void AFluidSimVolume::SoftCollisionCheck(float DeltaTime)
 {
     if (DeltaTime <= 0.f) return;
 
-    // Wall constraint parameters tuned for SPH
+    // Wall constraint parameters
     const float WallBaseStrength = 60.f;
     const float MinWallDist = SmoothingRadius;
     const float MaxWallForce = 1000.f;
@@ -171,6 +171,78 @@ void AFluidSimVolume::VolumeCollisionCheck(float DeltaTime)
     }
 }
 
+void AFluidSimVolume::HardCollisionCheck(float DeltaTime)
+{
+    if (DeltaTime <= 0.f) return;
+
+    FVector MinBounds = GetActorLocation() - VolumeHalfExtents * GetActorScale();
+    FVector MaxBounds = GetActorLocation() + VolumeHalfExtents * GetActorScale();
+
+    const float Restitution = 0.2f;  // bounce factor (0 = no bounce, 1 = perfect bounce)
+    const float Friction = 0.05f;    // surface friction
+
+    for (AFluidParcelActor* ParcelActor : Parcels)
+    {
+        if (!ParcelActor || !ParcelActor->Parcel) continue;
+        UFluidParcel* P = ParcelActor->Parcel;
+        FVector& Pos = P->Position;
+        FVector& Vel = P->Velocity;
+
+        // --- X boundaries ---
+        if (Pos.X < MinBounds.X)
+        {
+            Pos.X = MinBounds.X + 1;
+            Vel.X = -Vel.X * Restitution;
+            Vel.Y *= (1.0f - Friction);
+            Vel.Z *= (1.0f - Friction);
+        }
+        else if (Pos.X > MaxBounds.X)
+        {
+            Pos.X = MaxBounds.X - 1;
+            Vel.X = -Vel.X * Restitution;
+            Vel.Y *= (1.0f - Friction);
+            Vel.Z *= (1.0f - Friction);
+        }
+
+        // --- Y boundaries ---
+        if (Pos.Y < MinBounds.Y)
+        {
+            Pos.Y = MinBounds.Y + 1;
+            Vel.Y = -Vel.Y * Restitution;
+            Vel.X *= (1.0f - Friction);
+            Vel.Z *= (1.0f - Friction);
+        }
+        else if (Pos.Y > MaxBounds.Y)
+        {
+            Pos.Y = MaxBounds.Y - 1;
+            Vel.Y = -Vel.Y * Restitution;
+            Vel.X *= (1.0f - Friction);
+            Vel.Z *= (1.0f - Friction);
+        }
+
+        // --- Z boundaries (floor & ceiling) ---
+        if (Pos.Z < MinBounds.Z)
+        {
+            Pos.Z = MinBounds.Z + 1;
+            Vel.Z = -Vel.Z * Restitution;
+            Vel.X *= (1.0f - Friction);
+            Vel.Y *= (1.0f - Friction);
+
+            // prevent micro-bounces
+            if (FMath::Abs(Vel.Z) < 1.f)
+                Vel.Z = 0.f;
+        }
+        else if (Pos.Z > MaxBounds.Z)
+        {
+            Pos.Z = MaxBounds.Z - 1;
+            Vel.Z = -Vel.Z * Restitution;
+            Vel.X *= (1.0f - Friction);
+            Vel.Y *= (1.0f - Friction);
+        }
+    }
+}
+
+
 // ------------------------------------------------------------
 // Tick: Main SPH simulation loop
 // ------------------------------------------------------------
@@ -188,7 +260,13 @@ void AFluidSimVolume::Tick(float DeltaTime)
     float VolumeTotal = VolumeSize.X * VolumeSize.Y * VolumeSize.Z;
     float ParticleSpacing = FMath::Pow(VolumeTotal / FMath::Max(NumParcels, 1), 1.f / 3.f);
 
-    float h = SmoothingRadius > 0.f ? SmoothingRadius : ParticleSpacing * 1.5f;
+    // Smoothing radius h: can be manually set or derived from spacing
+    float h = SmoothingRadius > 0.f ? SmoothingRadius : ParticleSpacing * 1.8f;
+
+    // Optional runtime scaling factors
+    float PressureScale = FMath::Clamp(GasConstant / 2000.f, 0.1f, 20.f);
+    float ViscosityScale = FMath::Clamp(Viscosity / 5.f, 0.1f, 50.f);
+    const float xsph_epsilon_runtime = 0.05f;
 
     // --------------------------------------------------------
     // 1. Compute density and pressure
@@ -219,11 +297,7 @@ void AFluidSimVolume::Tick(float DeltaTime)
         }
 
         Pi->Density = FMath::Max(Pi->Density, 1e-3f);
-
-        // Equation of state: P = k * (rho - rho0)
-        // Reference: Müller et al. (2003)
-        const float PressureStiffness = FMath::Max(1.f, GasConstant);
-        Pi->Pressure = PressureStiffness * (Pi->Density - RestDensity);
+        Pi->Pressure = PressureScale * GasConstant * (Pi->Density - RestDensity);
     }
 
     // --------------------------------------------------------
@@ -255,7 +329,7 @@ void AFluidSimVolume::Tick(float DeltaTime)
 
                 // Viscosity term (Laplacian)
                 float lap = SPH::ViscosityLaplacian(r, h);
-                ViscosityForce += Viscosity * Pj->Mass * (Pj->Velocity - Pi->Velocity) / Pj->Density * lap;
+                ViscosityForce += ViscosityScale * Pj->Mass * (Pj->Velocity - Pi->Velocity) / Pj->Density * lap;
             }
         }
 
@@ -271,13 +345,22 @@ void AFluidSimVolume::Tick(float DeltaTime)
     // --------------------------------------------------------
     // 3. Boundary checks
     // --------------------------------------------------------
-    VolumeCollisionCheck(DeltaTime);
+    switch (BorderType)
+    {
+    case EBorderType::Soft:
+        SoftCollisionCheck(DeltaTime);
+        break;
+    case EBorderType::Hard:
+        HardCollisionCheck(DeltaTime);
+        break;
+    default:
+        break;
+    }
 
     // --------------------------------------------------------
     // 4. XSPH velocity smoothing
     // Reference: Monaghan (1992) - XSPH correction
     // --------------------------------------------------------
-    const float xsph_epsilon = 0.05f;
     for (AFluidParcelActor* PiActor : Parcels)
     {
         UFluidParcel* Pi = PiActor->Parcel;
@@ -285,6 +368,7 @@ void AFluidSimVolume::Tick(float DeltaTime)
 
         FVector vsum = FVector::ZeroVector;
         float wsum = 0.f;
+
         for (AFluidParcelActor* PjActor : Parcels)
         {
             UFluidParcel* Pj = PjActor->Parcel;
@@ -299,9 +383,10 @@ void AFluidSimVolume::Tick(float DeltaTime)
                 wsum += w;
             }
         }
+
         if (wsum > 0.f)
         {
-            Pi->Velocity += xsph_epsilon * ((vsum / wsum) - Pi->Velocity);
+            Pi->Velocity += xsph_epsilon_runtime * ((vsum / wsum) - Pi->Velocity);
         }
     }
 

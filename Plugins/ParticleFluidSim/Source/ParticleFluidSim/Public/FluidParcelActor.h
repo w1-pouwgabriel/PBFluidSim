@@ -21,8 +21,6 @@ protected:
 public:
     virtual void Tick(float DeltaTime) override;
 
-    void SetLinearColor(float VaLue);
-
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<UStaticMeshComponent> SphereMesh;
 
