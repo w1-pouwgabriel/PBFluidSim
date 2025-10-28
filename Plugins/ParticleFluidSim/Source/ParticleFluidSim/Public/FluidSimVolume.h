@@ -6,14 +6,12 @@
 #include "FluidParcelActor.h"
 #include "FluidSimVolume.generated.h"
 
-
 UENUM(BlueprintType)
 enum class EBorderType : uint8
 {
     Soft UMETA(DisplayName = "Soft"),
     Hard UMETA(DisplayName = "Hard")
 };
-
 
 UCLASS()
 class PARTICLEFLUIDSIM_API AFluidSimVolume : public AActor
@@ -28,6 +26,9 @@ protected:
 
     void SoftCollisionCheck(float DeltaTime);
     void HardCollisionCheck(float DeltaTime);
+
+    // Add particles on a specific (spot or have a spawner attached to a separate AActor)
+    void AddParticles(uint32 NumParticles);
 
 public:
     virtual void Tick(float DeltaTime) override;
@@ -51,7 +52,7 @@ public:
     float SmoothingRadius = 0.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-    float Gravity = -980.f; // Unreal units (cm/s²)
+    float Gravity = -980.f; // Unreal units (cm/sï¿½)
 
     // Size of the simulation volume (half extents of the box)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fluid Sim")
