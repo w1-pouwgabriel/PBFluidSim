@@ -51,11 +51,7 @@ public:
     float SmoothingRadius = 0.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-<<<<<<< HEAD
     float Gravity = -980.f; // Unreal units (cm/s^2)
-=======
-    float Gravity = -980.f; // Unreal units (cm/s�)
->>>>>>> a5a8767bb20addb08067ca0fbc80a78fc5684b0b
 
     // Size of the simulation volume (half extents of the box)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fluid Sim")
