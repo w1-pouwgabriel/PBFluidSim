@@ -14,7 +14,6 @@ enum class EBorderType : uint8
     Hard UMETA(DisplayName = "Hard")
 };
 
-
 UCLASS()
 class PARTICLEFLUIDSIM_API AFluidSimVolume : public AActor
 {
@@ -31,7 +30,6 @@ protected:
 
 public:
     virtual void Tick(float DeltaTime) override;
-
 
     // Border vals
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fluid Sim")
@@ -51,7 +49,7 @@ public:
     float SmoothingRadius = 0.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SPH")
-    float Gravity = -980.f; // Unreal units (cm/s²)
+    float Gravity = -980.f; // Unreal units (cm/s^2)
 
     // Size of the simulation volume (half extents of the box)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fluid Sim")

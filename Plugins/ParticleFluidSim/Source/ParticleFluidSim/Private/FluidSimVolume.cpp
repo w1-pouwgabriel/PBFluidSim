@@ -75,7 +75,7 @@ void AFluidSimVolume::BeginPlay()
 
 // ------------------------------------------------------------
 // ComputeWallRepulsion: soft cubic wall repulsion helper
-// Reference: Müller et al. (2003) - Particle-Based Fluid Simulation for Interactive Applications
+// Reference: Mï¿½ller et al. (2003) - Particle-Based Fluid Simulation for Interactive Applications
 // ------------------------------------------------------------
 inline float ComputeWallRepulsion(float Distance, float MinDist, float k)
 {
@@ -264,8 +264,8 @@ void AFluidSimVolume::Tick(float DeltaTime)
     float h = SmoothingRadius > 0.f ? SmoothingRadius : ParticleSpacing * 1.8f;
 
     // Optional runtime scaling factors
-    float PressureScale = FMath::Clamp(GasConstant / 2000.f, 0.1f, 20.f);
-    float ViscosityScale = FMath::Clamp(Viscosity / 5.f, 0.1f, 50.f);
+    //float PressureScale = FMath::Clamp(GasConstant / 2000.f, 0.1f, 20.f);
+    //float ViscosityScale = FMath::Clamp(Viscosity / 5.f, 0.1f, 50.f);
     const float xsph_epsilon_runtime = 0.05f;
 
     // --------------------------------------------------------
@@ -297,7 +297,7 @@ void AFluidSimVolume::Tick(float DeltaTime)
         }
 
         Pi->Density = FMath::Max(Pi->Density, 1e-3f);
-        Pi->Pressure = PressureScale * GasConstant * (Pi->Density - RestDensity);
+        Pi->Pressure = GasConstant * (Pi->Density - RestDensity);
     }
 
     // --------------------------------------------------------
@@ -329,7 +329,7 @@ void AFluidSimVolume::Tick(float DeltaTime)
 
                 // Viscosity term (Laplacian)
                 float lap = SPH::ViscosityLaplacian(r, h);
-                ViscosityForce += ViscosityScale * Pj->Mass * (Pj->Velocity - Pi->Velocity) / Pj->Density * lap;
+                ViscosityForce += Pj->Mass * (Pj->Velocity - Pi->Velocity) / Pj->Density * lap;
             }
         }
 
